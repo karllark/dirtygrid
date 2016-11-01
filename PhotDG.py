@@ -22,7 +22,7 @@ class PhotDG:
 		self.param_values = param_values
 		print 'SEDs in erg/s/micrometer'		
 				
-	def PhotGet(self, grain, geom, sf_type, metal, age, sfr, tau, bands=-1):
+	def photGet(self, grain, geom, sf_type, metal, age, sfr, tau, bands=-1):
 		# grain
 		fd_grain = [s for s in self.param_values['grain'] if grain in s]
 		w_grain = np.where(fd_grain == self.param_values['grain'])
@@ -58,14 +58,18 @@ class PhotDG:
 			ind_bands=[]
 			for i in range(len(bands)): 
 				tmp_bd = np.where(self.param_values['band'] == bands[i])
-				ind_bands.append(tmp_bd[0][0])
+				if len(tmp_bd[0] != 0):
+					ind_bands.append(tmp_bd[0][0])
+				else:
+					print 'Band ' + bands[i] + ' is missing in the DIRTY Grid - Cancelling that last call'
+					return
 			self.seds.append(self.grid[ind_grain, ind_geom, ind_sf_type, ind_metal, ind_age, ind_sfr, ind_tau, ind_bands])
 		
-	def PhotPlot(self, bands =-1, ind=-1):
+	def photPlot(self, bands =-1, ind=-1):
 		plt.ion()
 		# Wavelengths
 		# FUV NUV u g r i z U B V R I J H K ...
-		waves = ['FUV', 'NUV', 0.3543, 0.4770, 0.6231, 0.7625, 0.9134, 'U', 'B', 'V', 'R', 'I', 1.2483, 1.6313, 2.2010, 3.6, 4.5, 5.8, 8.0, 24, 70, 160, 250, 350, 500]
+		waves = [0.155, 0.2275, 0.3543, 0.4770, 0.6231, 0.7625, 0.9134, 0.365, 0.445, 0.551, 0.658, 0.806, 1.2483, 1.6313, 2.2010, 3.6, 4.5, 5.8, 8.0, 24, 70, 160, 250, 350, 500]
 		# Plot
 		plt.xscale('log')
 		plt.yscale('log')
@@ -79,16 +83,6 @@ class PhotDG:
 		else:
 			#print 'Plotting just one'
 			plt.plot(waves, np.array(self.seds[ind]))
-
-#	def PhotNew(self, bands, files):
-#		#from SpecDG import SpecDG
-#		#newbd = SpecDG()
-#		mapfile = '/astro/dust_kg3/klaw/cloudy2/dirtygrid_db/django/param_table6_combined.tsvx'
-#		mapping = Table.read(mapfile, format='ascii')
-#		n_files = len(mapping['gid'])
-#		# Read every fits file
-#		for i in range(n_files):
-			
 
 
 
