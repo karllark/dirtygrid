@@ -84,17 +84,9 @@ class PhotDG:
 			#print 'Plotting just one'
 			plt.plot(waves, np.array(self.seds[ind]))
 
+	def photAddNew(self, wave0, band_name, newphot):
+		# Here, to write the code to add a new photometry value to DIRTY Grid
 
 
-
-
-
-
-
-
-
-
-
-
-
+##########
 
