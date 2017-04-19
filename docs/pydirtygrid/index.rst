@@ -11,6 +11,14 @@ Repository
 
 Github: <https://github.com/karllark/pydirtygrid>
 
+DirtyGrid Data
+==============
+
+The DirtyGrid is provide as a large hd5f file.  This file provides photometry
+in a number of bands.
+
+Location: <https://stsci.box.com/v/dirtygrid>
+
 Reference API
 =============
 .. toctree::

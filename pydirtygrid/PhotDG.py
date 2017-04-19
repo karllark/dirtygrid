@@ -23,46 +23,54 @@ class PhotDG:
 
     """
 
-    def __init__(self, silent=0):
-        f = h5py.File("/astro/dust_kg/jchastenet/dirtycube_29mar17.hdf5", "r+")
+    def __init__(self, datafile='data/dirtygrid_29mar17.hdf5'):
+        f = h5py.File(datafile, "r+")
         # Create the objects
         self.seds = []
         self.dgrid = f
+
+        # convert binary strings to regular strings
+        # does not work, need to find the way to do this...
+        #self.dgrid.attrs['grain'] = [str(a)
+        #                             for a in self.dgrid.attrs['grain']]
+
+    def print_parameters(self):
+
         print('SEDs in erg/s/micrometer')
         print('')
-        if silent == 0:
-            print('-- Discrete parameters')
-            print('    - Grain types: ' + str(self.dgrid.attrs['grain']))
-            print('    - Geometries: ' + str(self.dgrid.attrs['geom']))
-            print('    - Star formation types: '
-                  + str(self.dgrid.attrs['sf_type']))
-            print('-- Continuous parameters')
-            print('    - Metallicities: '
-                  + str(self.dgrid.attrs['metal'][0])
-                  + ' to ' + str(self.dgrid.attrs['metal'][-1])
-                  + ' (' + str(len(self.dgrid.attrs['metal'])) + ' values)')
-            print('    - Stellar ages: '
-                  + str(self.dgrid.attrs['age'][0]) + ' to '
-                  + str(self.dgrid.attrs['age'][-1])
-                  + ' [Myr] (' + str(len(self.dgrid.attrs['age'])) + ' values)')
-            print('    - Star formation rates: '
-                  + str(self.dgrid.attrs['sfr'][0]) + ' to '
-                  + str(self.dgrid.attrs['sfr'][-1])
-                  + ' [Solar mass] ('
-                  + str(len(self.dgrid.attrs['sfr'])) + ' values)')  
-            print(r'       /!\ 5e-11 factor if Star formation type is Continuous [Solar mass / year]')
-            print('    - Optical depth: '
-                  + str(self.dgrid.attrs['tau'][0]) + ' to '
-                  + str(self.dgrid.attrs['tau'][-1])
-                  + ' (' + str(len(self.dgrid.attrs['tau'])) + ' values)')
-            print(' -- Bands available')
-            print(str(self.dgrid.attrs['band']))
-   
+        print('-- Discrete parameters')
+        print('    - Grain types: ' + str(self.dgrid.attrs['grain']))
+        print('    - Geometries: ' + str(self.dgrid.attrs['geom']))
+        print('    - Star formation types: '
+              + str(self.dgrid.attrs['sf_type']))
+        print('-- Continuous parameters')
+        print('    - Metallicities: '
+              + str(self.dgrid.attrs['metal'][0])
+              + ' to ' + str(self.dgrid.attrs['metal'][-1])
+              + ' (' + str(len(self.dgrid.attrs['metal'])) + ' values)')
+        print('    - Stellar ages: '
+              + str(self.dgrid.attrs['age'][0]) + ' to '
+              + str(self.dgrid.attrs['age'][-1])
+              + ' [Myr] (' + str(len(self.dgrid.attrs['age'])) + ' values)')
+        print('    - Star formation rates: '
+              + str(self.dgrid.attrs['sfr'][0]) + ' to '
+              + str(self.dgrid.attrs['sfr'][-1])
+              + ' [Solar mass] ('
+              + str(len(self.dgrid.attrs['sfr'])) + ' values)')  
+        print(r'       /!\ 5e-11 factor if Star formation type is Continuous [Solar mass / year]')
+        print('    - Optical depth: '
+              + str(self.dgrid.attrs['tau'][0]) + ' to '
+              + str(self.dgrid.attrs['tau'][-1])
+              + ' (' + str(len(self.dgrid.attrs['tau'])) + ' values)')
+        print(' -- Bands available')
+        print(str(self.dgrid.attrs['band']))
    
     def photGet(self, grain, geom, sf_type, metal, age, sfr, tau, bands=-1):
         """
-        Save photometry points given a set of parameters. The function allows for :
-           - values not in the DGrid parameter sampling, and finds the closest point
+        Save photometry points given a set of parameters. The function allows 
+        for:
+           - values not in the DGrid parameter sampling, and finds the 
+             closest point
            - specific bands only
     
         Parameters
@@ -97,11 +105,12 @@ class PhotDG:
         tmpsed = []
         # grain
         #In case the whole name is not known
-        fd_grain = [s for s in self.dgrid.attrs['grain'] if grain in s] 
+        fd_grain = [s for s in self.dgrid.attrs['grain'] 
+                    if grain.encode() in s] 
         w_grain = np.where(fd_grain == self.dgrid.attrs['grain'])
         ind_grain = w_grain[0][0]
         # geometry
-        fd_geom = np.where(geom == self.dgrid.attrs['geom'])
+        fd_geom = np.where(geom.encode() == self.dgrid.attrs['geom'])
         ind_geom = fd_geom[0][0]
         # sf type
         sf_type = sf_type.lower()
@@ -138,8 +147,8 @@ class PhotDG:
     def photPlot(self, ind=-1):
         """
         Plot photometry points, either giving a specific set of bands, or all 
-           of them
-           either giving a specific index of which if more that one saved, or all of them
+           of them either giving a specific index of which if more that 
+           one saved, or all of them
 
         Parameters
         ----------
@@ -148,7 +157,8 @@ class PhotDG:
         """
 
         # ToDo: Add colors
-        plt.ion()
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
         # Plot
         plt.xscale('log')
         plt.yscale('log')
@@ -157,18 +167,19 @@ class PhotDG:
         #effwaves= np.array([0.155, 0.2275, 0.3543, 0.4770, 0.6231, 0.7625, 0.9134, 0.365, 0.445, 0.551, 0.658, 0.806, 1.2483, 1.6313, 2.2010, 3.6, 4.5, 5.8, 8.0, 24., 70., 160., 250., 350., 500.,100])
         if ind == -1:
             print('Plotting all SEDs in object')
-        for i in range(len(self.seds)):
-            plt.scatter(self.dgrid.attrs['effwaves'],
-                        np.array(self.seds[i]))
+            for i in range(len(self.seds)):
+                plt.scatter(self.dgrid.attrs['effwaves'],
+                            np.array(self.seds[i]))
         else:
             #print 'Plotting just one'
             for i in ind:
                 plt.scatter(self.dgrid.attrs['effwaves'], np.array(self.seds[i]))
-
+        plt.show()
  
     def findIndexFromParams(self, grain, geom, sf_type, metal, age, sfr, tau):
         """
-        Give a set of parameters and find where they will be stored in the DirtyGrid cube
+        Give a set of parameters and find where they will be stored in the 
+        DirtyGrid cube
  
         Parameters
         ----------
@@ -210,7 +221,8 @@ class PhotDG:
         return indgt, indgm, indst, indmt, indsa, indsr, indta
 
  
-    def photAddNew(self, wave0, band_name, newcube):
+    def photAddNew(self, wave0, band_name, newcube,
+                   datafile='data/dirtygrid_29mar17.hdf5'):
         """
         Create the new dataset and add it to the file
   
@@ -226,7 +238,7 @@ class PhotDG:
            new photometry to be added to the file as a new dataset
         """
 
-        fnew = h5py.File("/astro/dust_kg/jchastenet/dirtycube_29mar17.hdf5", "r+")
+        fnew = h5py.File(datafile, "r+")
         # Update the nominal wavelengths
         oldwaves = f.attrs['effwaves'].tolist()
         oldwaves.append(wave0)
