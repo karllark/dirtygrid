@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 
 from __future__ import (absolute_import, print_function, division)
 
@@ -12,14 +11,13 @@ __all__ = ['PhotDG']
 
 class PhotDG:
     """
-    Read in the DirtyGrid cube as a HDF5
+    Read in the DirtyGrid cube from a HDF5 file
 
     Returns
     -------
         (self.)seds: a list that grows with the SED you choose to extract
         (self.)dgrid: the HDF5 file:  with attributes corresponding to the 
-                parameters values;
-                with each dataset corresponding to each band.
+                parameters values; with each dataset corresponding to each band
 
     """
 
@@ -162,18 +160,18 @@ class PhotDG:
         # Plot
         plt.xscale('log')
         plt.yscale('log')
-        plt.ylabel('Energy  [$erg$ $s^{-1}$ $\mu m^{-1}$]', fontsize=15)
+        plt.ylabel('$\lambda L(\lambda)$  [$erg$ $s^{-1}$]', fontsize=15)
         plt.xlabel('Wavelength  [$\mu m$]', fontsize=15)
-        #effwaves= np.array([0.155, 0.2275, 0.3543, 0.4770, 0.6231, 0.7625, 0.9134, 0.365, 0.445, 0.551, 0.658, 0.806, 1.2483, 1.6313, 2.2010, 3.6, 4.5, 5.8, 8.0, 24., 70., 160., 250., 350., 500.,100])
         if ind == -1:
             print('Plotting all SEDs in object')
             for i in range(len(self.seds)):
                 plt.scatter(self.dgrid.attrs['effwaves'],
-                            np.array(self.seds[i]))
+                            self.dgrid.attrs['effwaves']*np.array(self.seds[i]))
         else:
             #print 'Plotting just one'
             for i in ind:
-                plt.scatter(self.dgrid.attrs['effwaves'], np.array(self.seds[i]))
+                plt.scatter(self.dgrid.attrs['effwaves'], 
+                            self.dgrid.attrs['effwaves']*np.array(self.seds[i]))
         plt.show()
  
     def findIndexFromParams(self, grain, geom, sf_type, metal, age, sfr, tau):
