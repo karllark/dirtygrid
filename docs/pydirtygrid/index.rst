@@ -25,6 +25,7 @@ Reference API
    :maxdepth: 1
 
 .. automodapi:: pydirtygrid.PhotDG
+.. automodapi:: pydirtygrid.SpecDG
 	      
 Indices and tables
 ==================
