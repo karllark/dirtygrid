@@ -1,5 +1,5 @@
 
-from __future__ import (absolute_import, print_function, division)
+import glob
 
 from astropy.table import Table
 import numpy as np
@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 import string as st
 import subprocess
 from scipy import interpolate
-from scipy.integrate import simps
-from pydirtygrid.PhotDG import PhotDG
+from scipy.integrate import simpson as simps
+from PhotDG import PhotDG
 import h5py
 
 __all__ = ['SpecDG']
@@ -53,8 +53,7 @@ class SpecDG:
           the absolute path and name of the .fits file
        """
 
-       alphab = []
-       for i in range(26): alphab.append(st.uppercase[i])
+       alphab = list(st.ascii_uppercase)
        alphab = np.array(alphab)
        ind_id = []
        for i in range(len(file_id)):
@@ -66,14 +65,11 @@ class SpecDG:
        prefix = ''.join(alphab[ind_id])
        filepath = '/astro/dust_kg3/klaw/cloudy2/nasa_fits/'+prefix \
            +'/'+str(file_id[-4:-2])+'/'
-       files = []
-       proc = subprocess.Popen(['ls', filepath], stdout=subprocess.PIPE)
-       for line in proc.stdout.readlines(): files.append(line.rstrip())
-       filename = [s for s in files if file_id in s]
+       filename = glob.glob(f"{filepath}*{file_id}*")
        if len(filename) == 0: 
            return 'Void'
        else:
-           filename = filename[0]
+           filename = (filename[0].split("/"))[-1]
            return filepath+filename
 
     def findGidFromParam(self, grain, geom, sf_type, metal, age, sfr, tau):
@@ -186,8 +182,8 @@ class SpecDG:
         """
         plt.xscale('log')
         plt.yscale('log')
-        plt.ylabel('Luminosity  [$erg$ $s^{-1}$ $\mu m^{-1}$]', fontsize=15)
-        plt.xlabel('Wavelength  [$\mu m$]', fontsize=15)
+        plt.ylabel(r'Luminosity  [$erg$ $s^{-1}$ $\mu m^{-1}$]', fontsize=15)
+        plt.xlabel(r'Wavelength  [$\mu m$]', fontsize=15)
         if ind == -1:
             print('Plotting all SEDs in object')
             for i in range(len(self.seds)): 
@@ -199,7 +195,7 @@ class SpecDG:
         plt.show()
    
     def spec2Phot(self, trans_curve, trans_waves, wave0, energy=1):
-        """
+        r"""
         Compute the new photometry
         
         Parameters
