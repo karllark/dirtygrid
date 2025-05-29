@@ -8,12 +8,12 @@ if __name__ == '__main__':
     filepath = "/astro/dust_kg3/klaw/cloudy2/nasa_fits"
     outpath = "/astro/dust_kg3/kgordon/DirtyGrid"
 
-    alldirs = glob.glob(f"{filepath}/Z") + glob.glob(f"{filepath}/ZZZ?")
+    alldirs = glob.glob(f"{filepath}/??") + glob.glob(f"{filepath}/?")
     mdirs = sorted(alldirs)
 
     for cmdir in mdirs:
         print(cmdir)
-        psdirs = glob.glob(f"{cmdir}/19")
+        psdirs = glob.glob(f"{cmdir}/*")
         for csdir in psdirs:
             pfiles = glob.glob(f"{csdir}/*.fits")
             for cfile in pfiles:
